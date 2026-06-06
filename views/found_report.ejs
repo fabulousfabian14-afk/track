@@ -1,0 +1,18 @@
+<%- include('layout', { body: `
+<section class="panel">
+  <h1>Report Found Item</h1>
+  <form action="/student/report-found" method="post" enctype="multipart/form-data" class="form-stack">
+    <label>Item title</label>
+    <input name="title" required />
+    <label>Description</label>
+    <textarea name="description" rows="4" required></textarea>
+    <label>Found at location</label>
+    <input name="location" required />
+    <label>Phone number</label>
+    <input name="phone" type="tel" placeholder="e.g. +254700000000" required />
+    <label>Upload item image</label>
+    <input type="file" name="image" accept="image/*" />
+    <button type="submit">Submit Found Report</button>
+  </form>
+</section>
+` }) %>

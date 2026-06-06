@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>University of Kabianga Tracker</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="brand">🔍 Kabianga Lost & Found Tracker</div>
+        <nav>
+          <% if (user) { %>
+            <span>Signed in as <strong><%= user.full_name %></strong> (<%= user.role %>)</span>
+            <a href="/logout">Logout</a>
+          <% } else { %>
+            <a href="/login">Login</a>
+            <a href="/register" class="btn-register">Register</a>
+          <% } %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <% if (error.length) { %>
+        <div class="alert alert-error"><%= error[0] %></div>
+      <% } %>
+      <% if (success.length) { %>
+        <div class="alert alert-success"><%= success[0] %></div>
+      <% } %>
+      <%- body %>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2024 University of Kabianga Lost and Found System. Items not claimed within 90 days may be archived or disposed.</p>
+      </div>
+    </footer>
+  </body>
+</html>

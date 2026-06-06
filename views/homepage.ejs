@@ -1,0 +1,52 @@
+<%- include('layout', { body: `
+<section class="hero-section">
+  <div class="hero-content">
+    <h1 class="hero-title">Lost Something?</h1>
+    <p class="hero-subtitle">We are here to help</p>
+    <p class="hero-description">The University of Kabianga Lost & Found Tracker helps you report lost or found items and reconnect you with your belongings.</p>
+    <div class="hero-buttons">
+      <a href="/login" class="btn btn-primary">Sign In</a>
+      <a href="/register" class="btn btn-secondary">Create Account</a>
+    </div>
+  </div>
+  <div class="hero-features">
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <h3>Report Items</h3>
+      <p>Report lost or found items with detailed descriptions and photos.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Browse Items</h3>
+      <p>Search through found items at the security office to claim yours.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>Claim Process</h3>
+      <p>Submit a claim request and coordinate with security for recovery.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⏰</div>
+      <h3>Important Notice</h3>
+      <p>Items not claimed within 90 days may be archived or disposed.</p>
+    </div>
+  </div>
+</section>
+<section class="info-section">
+  <div class="info-box">
+    <h2>How It Works</h2>
+    <ol>
+      <li><strong>Create an account</strong> with your email and basic information</li>
+      <li><strong>Report lost items</strong> with photos and details</li>
+      <li><strong>Browse found items</strong> stored at security office</li>
+      <li><strong>Submit claim requests</strong> for items you recognize</li>
+      <li><strong>Coordinate with security</strong> to collect your belongings</li>
+    </ol>
+  </div>
+  <div class="info-box warning-box">
+    <h2>⚠️ Important Information</h2>
+    <p><strong>90-Day Archive Policy:</strong> Items not claimed within 90 days of being reported as found may be archived or disposed of according to university policy.</p>
+    <p>Check the system regularly if you've lost something. Security office is located in the main administration building.</p>
+  </div>
+</section>
+` }) %>

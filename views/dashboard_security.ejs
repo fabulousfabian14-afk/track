@@ -1,0 +1,42 @@
+<%- include('layout', { body: `
+<section>
+  <h1>Security Office Dashboard</h1>
+  <p>Manage lost and found item reports, review claims, and resolve cases.</p>
+  ${reports.length ? `
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Type</th><th>Title</th><th>Status</th><th>Location</th><th>Reporter</th><th>Claim Requester</th><th>Date</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        ${reports.map(r => `
+          <tr>
+            <td>${r.id}</td>
+            <td>${r.type}</td>
+            <td>${r.title}</td>
+            <td>${r.status}</td>
+            <td>${r.location}</td>
+            <td>${r.reporter || 'Unknown'}</td>
+            <td>${r.claim_requester || '-'}</td>
+            <td>${r.created_at}</td>
+            <td>
+              <form action="/security/report/${r.id}/assign" method="post" class="inline-form">
+                <select name="status">
+                  <option value="in security">In security</option>
+                  <option value="returned">Returned</option>
+                </select>
+                <button type="submit">Assign</button>
+              </form>
+              <form action="/security/report/${r.id}/claim" method="post" class="inline-form">
+                <button type="submit">Claim</button>
+              </form>
+              <form action="/security/report/${r.id}/resolve" method="post" class="inline-form">
+                <button type="submit">Resolve</button>
+              </form>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  ` : '<p>No reports available yet.</p>'}
+</section>
+` }) %>

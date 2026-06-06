@@ -1,0 +1,16 @@
+<%- include('layout', { body: `
+<section class="auth-card">
+  <h1>Sign In</h1>
+  <p>Enter your credentials to access your account.</p>
+  <form action="/login" method="post" class="form-stack">
+    <label>Username</label>
+    <input type="text" name="username" required />
+    <label>Password</label>
+    <input type="password" name="password" required />
+    <button type="submit" class="btn btn-primary">Sign In</button>
+  </form>
+  <div class="auth-link">
+    <p>Don't have an account? <a href="/register">Register here</a></p>
+  </div>
+</section>
+` }) %>

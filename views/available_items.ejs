@@ -1,0 +1,37 @@
+<%- include('layout', { body: `
+<section class="panel">
+  <h1>Available Items for Claim</h1>
+  <p>These found items are currently held at the security office. Review them carefully and request a claim if you recognize your item.</p>
+  <div class="notice-box notice-warning">
+    <strong>⏰ Important:</strong> Items not claimed within 90 days of being reported as found may be archived or disposed of according to university policy.
+  </div>
+  ${reports.length ? `
+    <div class="items-grid">
+      ${reports.map(r => `
+        <div class="item-card">
+          <div class="item-image">
+            ${r.image_path ? `<img src="/${r.image_path}" alt="${r.title}">` : '<div class="no-image">📦 No Image</div>'}
+          </div>
+          <div class="item-info">
+            <h3>${r.title}</h3>
+            <p class="description">${r.description}</p>
+            <div class="item-details">
+              <p><strong>Location Found:</strong> ${r.location}</p>
+              <p><strong>Reported:</strong> ${new Date(r.created_at).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> <span class="status-badge status-${r.status}">${r.status}</span></p>
+              <p><strong>Contact Phone:</strong> ${r.contact_phone || '-'}</p>
+            </div>
+            <div class="item-actions">
+              ${r.status === 'in security' ? `
+                <form action="/student/claim/${r.id}" method="post" class="inline-form">
+                  <button type="submit" class="btn btn-success">Request to Claim</button>
+                </form>
+              ` : `<p class="text-muted">Claim already requested by another student</p>`}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '<p class="text-center">No claimable items are currently available. Check back later!</p>'}
+</section>
+` }) %>

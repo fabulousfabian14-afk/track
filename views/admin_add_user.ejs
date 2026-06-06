@@ -1,0 +1,22 @@
+<%- include('layout', { body: `
+<section class="panel">
+  <h1>Create New User</h1>
+  <form action="/admin/add-user" method="post" class="form-stack">
+    <label>Full name</label>
+    <input name="full_name" required />
+    <label>Username</label>
+    <input name="username" required />
+    <label>Password</label>
+    <input type="password" name="password" required />
+    <label>Phone number</label>
+    <input name="phone" type="tel" placeholder="e.g. +254700000000" />
+    <label>Role</label>
+    <select name="role" required>
+      <option value="student">Student</option>
+      <option value="security">Security</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button type="submit">Create account</button>
+  </form>
+</section>
+` }) %>

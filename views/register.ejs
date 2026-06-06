@@ -1,0 +1,26 @@
+<%- include('layout', { body: `
+<section class="auth-card">
+  <h1>Create Account</h1>
+  <p>Register to report lost or found items and access the system.</p>
+  <form action="/register" method="post" class="form-stack">
+    <label>Full Name</label>
+    <input type="text" name="full_name" required />
+    <label>Email Address</label>
+    <input type="email" name="email" required />
+    <label>Username</label>
+    <input type="text" name="username" required />
+    <label>Password</label>
+    <input type="password" name="password" required placeholder="At least 8 characters" />
+    <label>Account Type</label>
+    <select name="role" required>
+      <option value="">Select a role</option>
+      <option value="student">Student</option>
+      <option value="staff">Staff Member</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Create Account</button>
+  </form>
+  <div class="auth-link">
+    <p>Already have an account? <a href="/login">Sign in here</a></p>
+  </div>
+</section>
+` }) %>
