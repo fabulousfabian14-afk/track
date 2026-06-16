@@ -390,40 +390,118 @@ button:hover,
   color: #3730a3;
 }
 
-.item-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
+  .status-claimed {
+    background: #d1fae5;
+    color: #065f46;
+  }
 
-.inline-form {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
+  .status-pending {
+    background: #fde68a;
+    color: #92400e;
+  }
 
-.inline-form button {
-  padding: 8px 14px;
-  font-size: 0.9rem;
-}
+  .item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
+  .inline-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
 
-thead {
-  background: linear-gradient(90deg, #f0f4ff 0%, #f0f0ff 100%);
-}
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
 
-th {
-  padding: 14px 12px;
-  text-align: left;
-  border-bottom: 2px solid #1e40af;
-  font-weight: 600;
-  color: #1e40af;
+  .page-header h1 {
+    margin: 0 0 8px;
+  }
+
+  .page-header p {
+    margin: 0;
+    color: #4b5563;
+    max-width: 640px;
+  }
+
+  .dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .status-card {
+    background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
+    padding: 24px;
+    border-radius: 14px;
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.08);
+  }
+
+  .status-card h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: #4338ca;
+  }
+
+  .status-card p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+
+  .status-card-lost {
+    border-left: 4px solid #ef4444;
+  }
+
+  .status-card-found {
+    border-left: 4px solid #10b981;
+  }
+
+  .status-card-pending {
+    border-left: 4px solid #f59e0b;
+  }
+
+  .section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  .table-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  }
+
+  .table-card h2 {
+    margin-top: 0;
+    color: #1e40af;
+  }
+
+  .table-note {
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 td {

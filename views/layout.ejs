@@ -12,6 +12,7 @@
         <div class="brand">🔍 Kabianga Lost & Found Tracker</div>
         <nav>
           <% if (user) { %>
+            <a href="/dashboard">Dashboard</a>
             <span>Signed in as <strong><%= user.full_name %></strong> (<%= user.role %>)</span>
             <a href="/logout">Logout</a>
           <% } else { %>
@@ -34,7 +35,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p>&copy; 2024 University of Kabianga Lost and Found System. Items not claimed within 90 days may be archived or disposed.</p>
+        <p>&copy; 26 University of Kabianga Lost and Found System. Items not claimed within 90 days may be archived or disposed.</p>
       </div>
     </footer>
   </body>

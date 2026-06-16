@@ -1,0 +1,77 @@
+<%- include('layout', { body: `
+<section class="page-header">
+  <div>
+    <h1>Welcome to the Kabianga Tracker</h1>
+    <p>Use this landing page to quickly access the tools and reports for your role.</p>
+  </div>
+</section>
+<section class="dashboard-summary">
+  <div class="status-card status-card-found">
+    <h3>Role</h3>
+    <p><%= role.charAt(0).toUpperCase() + role.slice(1) %></p>
+  </div>
+  <% if (role === 'student') { %>
+    <div class="status-card status-card-found">
+      <h3>Your reports</h3>
+      <p><%= data.myReports %></p>
+    </div>
+    <div class="status-card status-card-pending">
+      <h3>Pending claims</h3>
+      <p><%= data.pendingClaims %></p>
+    </div>
+    <div class="status-card status-card-lost">
+      <h3>Available found items</h3>
+      <p><%= data.availableItems %></p>
+    </div>
+  <% } else if (role === 'security') { %>
+    <div class="status-card status-card-pending">
+      <h3>Pending claims</h3>
+      <p><%= data.pendingClaims %></p>
+    </div>
+    <div class="status-card status-card-found">
+      <h3>Found items</h3>
+      <p><%= data.foundItems %></p>
+    </div>
+    <div class="status-card status-card-lost">
+      <h3>Lost reports</h3>
+      <p><%= data.lostReports %></p>
+    </div>
+  <% } else if (role === 'admin') { %>
+    <div class="status-card status-card-found">
+      <h3>Total users</h3>
+      <p><%= data.totalUsers %></p>
+    </div>
+    <div class="status-card status-card-pending">
+      <h3>Total reports</h3>
+      <p><%= data.totalReports %></p>
+    </div>
+    <div class="status-card status-card-lost">
+      <h3>Pending claims</h3>
+      <p><%= data.pendingClaims %></p>
+    </div>
+  <% } %>
+</section>
+<section class="section-grid">
+  <% if (role === 'student') { %>
+    <div class="table-card">
+      <h2>Student Actions</h2>
+      <a class="button" href="/student/report-lost">Report Lost Item</a>
+      <a class="button" href="/student/report-found">Report Found Item</a>
+      <a class="button" href="/student/available">Claim Available Items</a>
+      <a class="button btn-secondary" href="/student">View My Reports</a>
+    </div>
+  <% } else if (role === 'security') { %>
+    <div class="table-card">
+      <h2>Security Actions</h2>
+      <a class="button" href="/security">Open Security Dashboard</a>
+      <a class="button btn-secondary" href="/security/report-found">Report Found Item</a>
+    </div>
+  <% } else if (role === 'admin') { %>
+    <div class="table-card">
+      <h2>Admin Actions</h2>
+      <a class="button" href="/admin">Open Admin Dashboard</a>
+      <a class="button btn-secondary" href="/admin/add-user">Add New User</a>
+    </div>
+  <% } %>
+</section>
+` }) %>

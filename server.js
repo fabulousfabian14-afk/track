@@ -89,8 +89,8 @@ app.get('/register', (req, res) => res.render('register'));
 
 app.post('/register', async (req, res) => {
   try {
-    const { full_name, email, username, password, role } = req.body;
-    if (!full_name || !email || !username || !password) {
+    const { full_name, email, username, password, registration_number, phone } = req.body;
+    if (!full_name || !email || !username || !password || !registration_number || !phone) {
       req.flash('error', 'All fields are required.');
       return res.redirect('/register');
     }
@@ -102,12 +102,14 @@ app.post('/register', async (req, res) => {
     }
     const hashed = await bcrypt.hash(password, 10);
     await db.run(
-      'INSERT INTO users (full_name, email, username, password, role) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO users (full_name, email, username, password, role, phone_number, registration_number) VALUES (?, ?, ?, ?, ?, ?, ?)',
       full_name,
       email,
       username,
       hashed,
-      role || 'student'
+      'student',
+      phone,
+      registration_number
     );
     req.flash('success', 'Account created successfully! Please log in.');
     res.redirect('/login');
@@ -123,10 +125,34 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/dashboard', requireLogin, async (req, res) => {
+  const db = await openDatabase();
   const role = req.session.user.role;
-  if (role === 'admin') return res.redirect('/admin');
-  if (role === 'security') return res.redirect('/security');
-  return res.redirect('/student');
+  const data = {};
+
+  if (role === 'student') {
+    const myReports = await db.get('SELECT COUNT(1) AS count FROM reports WHERE created_by = ?', req.session.user.id);
+    const pendingClaims = await db.get('SELECT COUNT(1) AS count FROM claims WHERE user_id = ? AND status = ?', req.session.user.id, 'pending');
+    const availableItems = await db.get('SELECT COUNT(1) AS count FROM reports WHERE type = ? AND status IN (?, ?) AND archived_at IS NULL', 'found', 'in security', 'claim requested');
+    data.myReports = myReports.count;
+    data.pendingClaims = pendingClaims.count;
+    data.availableItems = availableItems.count;
+  } else if (role === 'security') {
+    const pendingClaims = await db.get('SELECT COUNT(1) AS count FROM claims WHERE status = ?', 'pending');
+    const foundItems = await db.get('SELECT COUNT(1) AS count FROM reports WHERE type = ? AND status IN (?, ?) AND archived_at IS NULL', 'found', 'in security', 'claim requested');
+    const lostReports = await db.get('SELECT COUNT(1) AS count FROM reports WHERE type = ? AND archived_at IS NULL', 'lost');
+    data.pendingClaims = pendingClaims.count;
+    data.foundItems = foundItems.count;
+    data.lostReports = lostReports.count;
+  } else if (role === 'admin') {
+    const totalUsers = await db.get('SELECT COUNT(1) AS count FROM users');
+    const totalReports = await db.get('SELECT COUNT(1) AS count FROM reports');
+    const pendingClaims = await db.get('SELECT COUNT(1) AS count FROM claims WHERE status = ?', 'pending');
+    data.totalUsers = totalUsers.count;
+    data.totalReports = totalReports.count;
+    data.pendingClaims = pendingClaims.count;
+  }
+
+  res.render('dashboard_landing', { role, data });
 });
 
 app.get('/student', requireRole('student'), async (req, res) => {
@@ -138,7 +164,16 @@ app.get('/student', requireRole('student'), async (req, res) => {
 app.get('/student/available', requireRole('student'), async (req, res) => {
   const db = await openDatabase();
   const reports = await db.all(
-    'SELECT r.*, u.full_name AS reporter, u.phone_number as reporter_phone FROM reports r LEFT JOIN users u ON u.id = r.created_by WHERE r.type = ? AND r.status IN (?, ?) AND (r.archived_at IS NULL) ORDER BY r.created_at DESC',
+    `SELECT r.*, u.full_name AS reporter, u.phone_number AS reporter_phone,
+      COUNT(c.id) AS claim_requests,
+      SUM(CASE WHEN c.user_id = ? AND c.status = 'pending' THEN 1 ELSE 0 END) AS my_pending_claims
+     FROM reports r
+     LEFT JOIN users u ON u.id = r.created_by
+     LEFT JOIN claims c ON c.report_id = r.id
+     WHERE r.type = ? AND r.status IN (?, ?) AND r.archived_at IS NULL
+     GROUP BY r.id
+     ORDER BY r.created_at DESC`,
+    req.session.user.id,
     'found',
     'in security',
     'claim requested'
@@ -192,24 +227,112 @@ app.post('/student/report-found', requireRole('student'), upload.single('image')
 app.post('/student/claim/:id', requireRole('student'), async (req, res) => {
   const { id } = req.params;
   const db = await openDatabase();
+  const report = await db.get('SELECT id, status FROM reports WHERE id = ? AND type = ? AND archived_at IS NULL', id, 'found');
+  if (!report || !['in security', 'claim requested'].includes(report.status)) {
+    req.flash('error', 'This item cannot be claimed right now.');
+    return res.redirect('/student/available');
+  }
+
+  const existing = await db.get('SELECT id FROM claims WHERE report_id = ? AND user_id = ? AND status = ?', id, req.session.user.id, 'pending');
+  if (existing) {
+    req.flash('error', 'You have already submitted a claim request for this item.');
+    return res.redirect('/student/available');
+  }
+
   await db.run(
-    'UPDATE reports SET status = ?, claim_requested_by = ?, claim_requested_at = datetime("now") WHERE id = ? AND type = ? AND status = ?',
-    'claim requested',
-    req.session.user.id,
+    'INSERT INTO claims (report_id, user_id, status, created_at) VALUES (?, ?, ?, datetime("now"))',
     id,
-    'found',
-    'in security'
+    req.session.user.id,
+    'pending'
   );
+
+  if (report.status === 'in security') {
+    await db.run('UPDATE reports SET status = ? WHERE id = ?', 'claim requested', id);
+  }
+
   req.flash('success', 'Claim request sent. Security will review it.');
   res.redirect('/student/available');
 });
 
+app.get('/security/report-found', requireRole('security'), (req, res) => res.render('security_found_report'));
+
+app.post('/security/report-found', requireRole('security'), upload.single('image'), async (req, res) => {
+  const { title, description, location, phone, owner_name } = req.body;
+  const imagePath = req.file ? `uploads/${req.file.filename}` : null;
+  const db = await openDatabase();
+  await db.run(
+    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
+    title,
+    `${description} (Reported by security for owner: ${owner_name || 'Unknown'})`,
+    location,
+    'found',
+    'in security',
+    req.session.user.id,
+    req.session.user.id,
+    phone,
+    imagePath
+  );
+  req.flash('success', 'Found item logged successfully at security.');
+  res.redirect('/security');
+});
+
+app.post('/security/claim/:claimId/approve', requireRole('security'), async (req, res) => {
+  const { claimId } = req.params;
+  const db = await openDatabase();
+  const claim = await db.get('SELECT * FROM claims WHERE id = ?', claimId);
+  if (!claim || claim.status !== 'pending') {
+    req.flash('error', 'Claim request not found or already processed.');
+    return res.redirect('/security');
+  }
+
+  await db.run('UPDATE claims SET status = ?, resolved_at = datetime("now") WHERE id = ?', 'approved', claimId);
+  await db.run('UPDATE reports SET status = ?, assigned_to = ? WHERE id = ?', 'claimed', req.session.user.id, claim.report_id);
+  await db.run('UPDATE claims SET status = ?, resolved_at = datetime("now") WHERE report_id = ? AND id != ? AND status = ?', 'rejected', claim.report_id, claimId, 'pending');
+
+  req.flash('success', 'Claim approved. The item is now marked claimed.');
+  res.redirect('/security');
+});
+
+app.post('/security/claim/:claimId/reject', requireRole('security'), async (req, res) => {
+  const { claimId } = req.params;
+  const db = await openDatabase();
+  const claim = await db.get('SELECT * FROM claims WHERE id = ?', claimId);
+  if (!claim || claim.status !== 'pending') {
+    req.flash('error', 'Claim request not found or already processed.');
+    return res.redirect('/security');
+  }
+
+  await db.run('UPDATE claims SET status = ?, resolved_at = datetime("now") WHERE id = ?', 'rejected', claimId);
+  const pending = await db.get('SELECT COUNT(1) AS count FROM claims WHERE report_id = ? AND status = ?', claim.report_id, 'pending');
+  if (pending.count === 0) {
+    await db.run('UPDATE reports SET status = ? WHERE id = ?', 'in security', claim.report_id);
+  }
+
+  req.flash('success', 'Claim rejected. The item remains at security.');
+  res.redirect('/security');
+});
+
 app.get('/security', requireRole('security'), async (req, res) => {
   const db = await openDatabase();
-  const reports = await db.all(
-    'SELECT r.*, u.full_name AS reporter, c.full_name AS claim_requester FROM reports r LEFT JOIN users u ON u.id = r.created_by LEFT JOIN users c ON c.id = r.claim_requested_by ORDER BY created_at DESC'
+  const lostReports = await db.all(
+    'SELECT r.*, u.full_name AS reporter FROM reports r LEFT JOIN users u ON u.id = r.created_by WHERE r.type = ? AND r.archived_at IS NULL ORDER BY r.created_at DESC',
+    'lost'
   );
-  res.render('dashboard_security', { reports });
+  const foundReports = await db.all(
+    'SELECT r.*, u.full_name AS reporter FROM reports r LEFT JOIN users u ON u.id = r.created_by WHERE r.type = ? AND r.archived_at IS NULL ORDER BY r.created_at DESC',
+    'found'
+  );
+  const pendingClaims = await db.all(
+    `SELECT c.*, r.title AS report_title, r.description AS report_description, r.location AS report_location,
+      u.full_name AS claimant, u.phone_number AS claimant_phone, r.type AS report_type, r.status AS report_status
+     FROM claims c
+     JOIN reports r ON r.id = c.report_id
+     LEFT JOIN users u ON u.id = c.user_id
+     WHERE c.status = ?
+     ORDER BY c.created_at DESC`,
+    'pending'
+  );
+  res.render('dashboard_security', { lostReports, foundReports, pendingClaims });
 });
 
 app.post('/security/report/:id/assign', requireRole('security'), async (req, res) => {
@@ -218,14 +341,6 @@ app.post('/security/report/:id/assign', requireRole('security'), async (req, res
   const db = await openDatabase();
   await db.run('UPDATE reports SET status = ?, assigned_to = ? WHERE id = ?', status || 'in security', req.session.user.id, id);
   req.flash('success', 'Report status updated.');
-  res.redirect('/security');
-});
-
-app.post('/security/report/:id/claim', requireRole('security'), async (req, res) => {
-  const { id } = req.params;
-  const db = await openDatabase();
-  await db.run('UPDATE reports SET status = ? WHERE id = ?', 'claimed', id);
-  req.flash('success', 'Item claim marked.');
   res.redirect('/security');
 });
 

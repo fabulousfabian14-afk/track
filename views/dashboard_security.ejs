@@ -1,42 +1,114 @@
 <%- include('layout', { body: `
-<section>
-  <h1>Security Office Dashboard</h1>
-  <p>Manage lost and found item reports, review claims, and resolve cases.</p>
-  ${reports.length ? `
+<section class="page-header">
+  <div>
+    <h1>Security Office Dashboard</h1>
+    <p>Manage the gate office lost and found inventory, review pending claim requests, and register found items from visitors.</p>
+  </div>
+  <a class="button" href="/security/report-found">Report Found Item</a>
+</section>
+<section class="dashboard-summary">
+  <div class="status-card status-card-lost">
+    <h3>Lost reports</h3>
+    <p>${lostReports.length}</p>
+  </div>
+  <div class="status-card status-card-found">
+    <h3>Found items</h3>
+    <p>${foundReports.length}</p>
+  </div>
+  <div class="status-card status-card-pending">
+    <h3>Pending claim requests</h3>
+    <p>${pendingClaims.length}</p>
+  </div>
+</section>
+<section class="section-grid">
+  <div class="table-card">
+    <h2>Pending claim requests</h2>
+    ${pendingClaims.length ? `
+      <table>
+        <thead>
+          <tr><th>Claim ID</th><th>Item</th><th>Claimant</th><th>Phone</th><th>Status</th><th>Submitted</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          ${pendingClaims.map(c => `
+            <tr>
+              <td>${c.id}</td>
+              <td>${c.report_title}</td>
+              <td>${c.claimant}</td>
+              <td>${c.claimant_phone || '-'}</td>
+              <td><span class="status-badge status-pending">${c.status}</span></td>
+              <td>${new Date(c.created_at).toLocaleString()}</td>
+              <td class="action-buttons">
+                <form action="/security/claim/${c.id}/approve" method="post">
+                  <button type="submit" class="btn btn-success">Approve</button>
+                </form>
+                <form action="/security/claim/${c.id}/reject" method="post">
+                  <button type="submit" class="btn btn-secondary">Reject</button>
+                </form>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : '<p>No pending claim requests at the moment.</p>'}
+  </div>
+  <div class="table-card">
+    <h2>Found items at security</h2>
+    ${foundReports.length ? `
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Title</th><th>Status</th><th>Location</th><th>Reporter</th><th>Reported</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          ${foundReports.map(r => `
+            <tr>
+              <td>${r.id}</td>
+              <td>${r.title}</td>
+              <td><span class="status-badge status-${r.status.replace(/\s+/g, '-')}">${r.status}</span></td>
+              <td>${r.location}</td>
+              <td>${r.reporter || 'Security'}</td>
+              <td>${new Date(r.created_at).toLocaleDateString()}</td>
+              <td>
+                <form action="/security/report/${r.id}/assign" method="post" class="inline-form">
+                  <select name="status">
+                    <option value="in security">In security</option>
+                    <option value="returned">Returned</option>
+                  </select>
+                  <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+                <form action="/security/report/${r.id}/resolve" method="post" class="inline-form">
+                  <button type="submit" class="btn btn-secondary">Close</button>
+                </form>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : '<p>No found items recorded yet.</p>'}
+  </div>
+</section>
+<section class="table-card">
+  <h2>Lost reports at the gate</h2>
+  ${lostReports.length ? `
     <table>
       <thead>
-        <tr><th>ID</th><th>Type</th><th>Title</th><th>Status</th><th>Location</th><th>Reporter</th><th>Claim Requester</th><th>Date</th><th>Actions</th></tr>
+        <tr><th>ID</th><th>Title</th><th>Status</th><th>Location</th><th>Reporter</th><th>Reported</th></tr>
       </thead>
       <tbody>
-        ${reports.map(r => `
+        ${lostReports.map(r => `
           <tr>
             <td>${r.id}</td>
-            <td>${r.type}</td>
-            <td>${r.title}</td>
-            <td>${r.status}</td>
+            <td>
+              <strong>${r.title}</strong>
+              <div class="table-note">${r.description}</div>
+            </td>
+            <td><span class="status-badge status-${r.status.replace(/\s+/g, '-')}">${r.status}</span></td>
             <td>${r.location}</td>
             <td>${r.reporter || 'Unknown'}</td>
-            <td>${r.claim_requester || '-'}</td>
-            <td>${r.created_at}</td>
-            <td>
-              <form action="/security/report/${r.id}/assign" method="post" class="inline-form">
-                <select name="status">
-                  <option value="in security">In security</option>
-                  <option value="returned">Returned</option>
-                </select>
-                <button type="submit">Assign</button>
-              </form>
-              <form action="/security/report/${r.id}/claim" method="post" class="inline-form">
-                <button type="submit">Claim</button>
-              </form>
-              <form action="/security/report/${r.id}/resolve" method="post" class="inline-form">
-                <button type="submit">Resolve</button>
-              </form>
-            </td>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
           </tr>
         `).join('')}
       </tbody>
     </table>
-  ` : '<p>No reports available yet.</p>'}
+  ` : '<p>No lost item reports logged at security.</p>'}
 </section>
 ` }) %>

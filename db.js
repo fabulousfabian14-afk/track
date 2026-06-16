@@ -56,26 +56,43 @@ async function initDatabase() {
       FOREIGN KEY(created_by) REFERENCES users(id),
       FOREIGN KEY(assigned_to) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS claims (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      report_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      status TEXT NOT NULL CHECK(status IN ('pending','approved','rejected')),
+      created_at TEXT NOT NULL,
+      resolved_at TEXT,
+      FOREIGN KEY(report_id) REFERENCES reports(id),
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
   `);
 
   await ensureColumn(db, 'users', 'email', 'TEXT UNIQUE');
   await ensureColumn(db, 'users', 'phone_number', 'TEXT');
+  await ensureColumn(db, 'users', 'registration_number', 'TEXT');
   await ensureColumn(db, 'reports', 'image_path', 'TEXT');
   await ensureColumn(db, 'reports', 'contact_phone', 'TEXT');
   await ensureColumn(db, 'reports', 'claim_requested_by', 'INTEGER');
   await ensureColumn(db, 'reports', 'claim_requested_at', 'TEXT');
   await ensureColumn(db, 'reports', 'archived_at', 'TEXT');
 
+  const adminPasswordHash = await bcrypt.hash('THEFABULOUS', 10);
+  const securityPasswordHash = await bcrypt.hash('security@24', 10);
+
   const admin = await db.getAsync('SELECT id FROM users WHERE username = ?', 'admin');
   if (!admin) {
-    const password = await bcrypt.hash('THEFABULOUS', 10);
-    await db.runAsync('INSERT INTO users (full_name, email, username, password, role) VALUES (?, ?, ?, ?, ?)', 'System Administrator', 'admin@kabianga.ac.ke', 'admin', password, 'admin');
+    await db.runAsync('INSERT INTO users (full_name, email, username, password, role) VALUES (?, ?, ?, ?, ?)', 'System Administrator', 'admin@kabianga.ac.ke', 'admin', adminPasswordHash, 'admin');
+  } else {
+    await db.runAsync('UPDATE users SET password = ?, role = ? WHERE username = ?', adminPasswordHash, 'admin', 'admin');
   }
 
   const security = await db.getAsync('SELECT id FROM users WHERE username = ?', 'security');
   if (!security) {
-    const password = await bcrypt.hash('security@24', 10);
-    await db.runAsync('INSERT INTO users (full_name, email, username, password, role) VALUES (?, ?, ?, ?, ?)', 'Security Officer', 'security@kabianga.ac.ke', 'security', password, 'security');
+    await db.runAsync('INSERT INTO users (full_name, email, username, password, role) VALUES (?, ?, ?, ?, ?)', 'Security Officer', 'security@kabianga.ac.ke', 'security', securityPasswordHash, 'security');
+  } else {
+    await db.runAsync('UPDATE users SET password = ?, role = ? WHERE username = ?', securityPasswordHash, 'security', 'security');
   }
 
   const student = await db.getAsync('SELECT id FROM users WHERE username = ?', 'student');

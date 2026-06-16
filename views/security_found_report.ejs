@@ -1,0 +1,21 @@
+<%- include('layout', { body: `
+<section class="panel">
+  <h1>Security Found Item Report</h1>
+  <p>Use this form to register found property at the security gate so owners can be contacted and claims can be processed quickly.</p>
+  <form action="/security/report-found" method="post" enctype="multipart/form-data" class="form-stack">
+    <label>Item title</label>
+    <input name="title" required />
+    <label>Description</label>
+    <textarea name="description" rows="4" required></textarea>
+    <label>Location found</label>
+    <input name="location" required />
+    <label>Owner name (if known)</label>
+    <input name="owner_name" placeholder="Optional" />
+    <label>Owner phone number</label>
+    <input name="phone" type="tel" placeholder="e.g. +254700000000" />
+    <label>Upload item image</label>
+    <input type="file" name="image" accept="image/*" />
+    <button type="submit">Register Found Item</button>
+  </form>
+</section>
+` }) %>
