@@ -24,10 +24,10 @@
     </header>
 
     <main class="container">
-      <% if (error.length) { %>
+      <% if (error && error.length) { %>
         <div class="alert alert-error"><%= error[0] %></div>
       <% } %>
-      <% if (success.length) { %>
+      <% if (success && success.length) { %>
         <div class="alert alert-success"><%= success[0] %></div>
       <% } %>
       <%- body %>

@@ -1,35 +1,42 @@
-<%- include('layout', { body: `
-<section class="page-header">
-  <div>
-    <h1>Student Dashboard</h1>
-    <p>Submit lost or found reports, monitor your case status, and request a claim from items secured at the gate.</p>
-  </div>
-</section>
-<div class="card-grid">
-  <a class="card" href="/student/report-lost">Report Lost Item</a>
-  <a class="card" href="/student/report-found">Report Found Item</a>
-  <a class="card" href="/student/available">Available Items for Claim</a>
-</div>
-<section class="panel">
-  <h2>Your report history</h2>
-  ${reports.length ? `
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Type</th><th>Title</th><th>Status</th><th>Location</th><th>Date</th></tr>
-      </thead>
-      <tbody>
-        ${reports.map(r => `
-          <tr>
-            <td>${r.id}</td>
-            <td>${r.type}</td>
-            <td>${r.title}</td>
-            <td><span class="status-badge status-${r.status.replace(/\s+/g, '-')}">${r.status}</span></td>
-            <td>${r.location}</td>
-            <td>${new Date(r.created_at).toLocaleDateString()}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  ` : '<p>No reports yet. Use the cards above to file a lost or found item.</p>'}
-</section>
-` }) %>
+<%- include('layout', { 
+  user, 
+  error, 
+  success,
+  body: `
+    <section class="page-header">
+      <div>
+        <h1>Student Dashboard</h1>
+        <p>Submit lost or found reports, monitor your case status, and request a claim from items secured at the gate.</p>
+      </div>
+    </section>
+
+    <div class="card-grid">
+      <a class="card" href="/student/report-lost">Report Lost Item</a>
+      <a class="card" href="/student/report-found">Report Found Item</a>
+      <a class="card" href="/student/available">Available Items for Claim</a>
+    </div>
+
+    <section class="panel">
+      <h2>Your report history</h2>
+      ${reports && reports.length ? `
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Type</th><th>Title</th><th>Status</th><th>Location</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            ${reports.map(r => `
+              <tr>
+                <td>${r.id}</td>
+                <td>${r.type}</td>
+                <td>${r.title}</td>
+                <td><span class="status-badge status-${r.status.replace(/\\s+/g, '-')}">${r.status}</span></td>
+                <td>${r.location}</td>
+                <td>${new Date(r.created_at).toLocaleDateString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<p>No reports yet. Use the cards above to file a lost or found item.</p>'}
+    </section>
+  ` 
+}) %>
