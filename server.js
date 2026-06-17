@@ -382,6 +382,62 @@ app.post('/admin/add-user', requireRole('admin'), async (req, res) => {
   res.redirect('/admin');
 });
 
+// Admin actions: delete user, change role, reset password
+app.post('/admin/user/:id/delete', requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Prevent admin from deleting their own account
+    if (req.session.user && String(req.session.user.id) === String(id)) {
+      req.flash('error', 'You cannot delete your own account.');
+      return res.redirect('/admin');
+    }
+    const db = await openDatabase();
+    await db.run('DELETE FROM users WHERE id = ?', id);
+    req.flash('success', 'User deleted.');
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    req.flash('error', 'Unable to delete user.');
+  }
+  res.redirect('/admin');
+});
+
+app.post('/admin/user/:id/role', requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  const valid = ['admin', 'security', 'student'];
+  if (!valid.includes(role)) {
+    req.flash('error', 'Invalid role.');
+    return res.redirect('/admin');
+  }
+  try {
+    const db = await openDatabase();
+    await db.run('UPDATE users SET role = ? WHERE id = ?', role, id);
+    req.flash('success', 'User role updated.');
+  } catch (err) {
+    console.error('Error updating role:', err);
+    req.flash('error', 'Unable to update role.');
+  }
+  res.redirect('/admin');
+});
+
+app.post('/admin/user/:id/reset-password', requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+  if (!password || password.length < 6) {
+    req.flash('error', 'Password required (min 6 characters).');
+    return res.redirect('/admin');
+  }
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    const db = await openDatabase();
+    await db.run('UPDATE users SET password = ? WHERE id = ?', hashed, id);
+    req.flash('success', 'Password reset.');
+  } catch (err) {
+    console.error('Error resetting password:', err);
+    req.flash('error', 'Unable to reset password.');
+  }
+  res.redirect('/admin');
+});
 
 app.use((req, res) => {
   res.status(404).send('Page not found');

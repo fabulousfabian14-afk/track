@@ -26,10 +26,36 @@
       <div class="table-card">
         <h2>Users</h2>
         ${users.length ? `
-          <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Username</th><th>Role</th><th>Phone</th></tr></thead>
+          <table style="font-size:11px; font-family:inherit;">
+            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Username</th><th>Role</th><th>Phone</th><th>Actions</th></tr></thead>
             <tbody>
-              ${users.map(u => `<tr><td>${u.id}</td><td>${u.full_name}</td><td>${u.email}</td><td>${u.username}</td><td>${u.role}</td><td>${u.phone_number || '-'}</td></tr>`).join('')}
+              ${users.map(u => `
+                <tr>
+                  <td>${u.id}</td>
+                  <td>${u.full_name}</td>
+                  <td>${u.email}</td>
+                  <td>${u.username}</td>
+                  <td>${u.role}</td>
+                  <td>${u.phone_number || '-'}</td>
+                  <td style="white-space:nowrap;">
+                    <form method="post" action="/admin/user/${u.id}/delete" style="display:inline;margin-right:6px;">
+                      <button class="btn btn-danger" onclick="return confirm('Delete user ${u.username}?')" style="font-size:11px;padding:4px 6px;">Delete</button>
+                    </form>
+                    <form method="post" action="/admin/user/${u.id}/role" style="display:inline;margin-right:6px;">
+                      <select name="role" style="font-size:11px;padding:3px;">
+                        <option value="student" ${u.role==='student' ? 'selected' : ''}>student</option>
+                        <option value="security" ${u.role==='security' ? 'selected' : ''}>security</option>
+                        <option value="admin" ${u.role==='admin' ? 'selected' : ''}>admin</option>
+                      </select>
+                      <button style="font-size:11px;padding:4px 6px;margin-left:4px;">Set</button>
+                    </form>
+                    <form method="post" action="/admin/user/${u.id}/reset-password" style="display:inline;margin-top:4px;">
+                      <input name="password" placeholder="new password" style="font-size:11px;padding:3px;width:110px;" />
+                      <button style="font-size:11px;padding:4px 6px;margin-left:4px;">Reset</button>
+                    </form>
+                  </td>
+                </tr>
+              `).join('')}
             </tbody>
           </table>
         ` : '<p>No users found.</p>'}
