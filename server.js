@@ -382,6 +382,25 @@ app.post('/admin/add-user', requireRole('admin'), async (req, res) => {
   res.redirect('/admin');
 });
 
+// Temporary admin-only route to delete a user by username.
+// This is added so we can remove test accounts remotely, then it will be removed.
+app.post('/admin/delete-user', requireRole('admin'), async (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    req.flash('error', 'Username required.');
+    return res.redirect('/admin');
+  }
+  try {
+    const db = await openDatabase();
+    await db.run('DELETE FROM users WHERE username = ?', username);
+    req.flash('success', `User ${username} deleted.`);
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    req.flash('error', 'Unable to delete user.');
+  }
+  res.redirect('/admin');
+});
+
 app.use((req, res) => {
   res.status(404).send('Page not found');
 });
