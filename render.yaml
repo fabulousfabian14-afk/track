@@ -9,8 +9,10 @@ services:
     envVars:
       - key: PORT
         value: "3000"
+    databaseId: kahianga-db
   
   - type: pserv
     name: kahianga-db
     plan: free
     ipAllowList: []
+    postgresVersion: 18
