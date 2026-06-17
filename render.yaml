@@ -9,3 +9,8 @@ services:
     envVars:
       - key: PORT
         value: "3000"
+  
+  - type: pserv
+    name: kahianga-db
+    plan: free
+    ipAllowList: []
