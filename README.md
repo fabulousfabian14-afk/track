@@ -1,62 +1,168 @@
-Kabianga Lost & Found Track
+Kabianga Lost & Found Tracker
 
-A simple Express + SQLite lost-and-found tracker used at the University of Kabianga.
+A role-based Express.js lost-and-found tracking system for University of Kabianga with **persistent PostgreSQL database** for production deployments.
 
-Features
+## Features
 - Role-based dashboards (admin, security, student)
 - Report lost/found items with optional photo uploads
 - Security claim workflow (submit / approve / reject)
-- Seeded admin and security accounts for first-run
+- Multi-user claim requests with approval authority
+- Automatic claim rejection on approval (prevents conflicts)
+- Responsive mobile-friendly UI for security dashboard
+- **Persistent database**: SQLite3 for local development, PostgreSQL for production
 
-Quick links
+## Database Options
+- **Local development**: Uses SQLite3 (`tracker.db`) - data persists in file
+- **Production (Render)**: Uses PostgreSQL via `DATABASE_URL` - data persists in managed database
+
+## Quick links
 - App entry: [server.js](server.js)
 - Database helper: [db.js](db.js)
 - Render config: [render.yaml](render.yaml)
 - Views: [views/](views)
 
-Prerequisites
+## Prerequisites
 - Node.js >= 16
 - npm
 - Git
 
-Install & run locally
-1. Install dependencies
+## Install & run locally
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-2. Start the app
+### 2. Start the app
 
 ```bash
 npm start
 ```
 
-3. Open http://localhost:3000
+The app will use SQLite3 locally and automatically initialize tables and seed users on first run.
 
-Database initialization
-- The app uses SQLite (`tracker.db`). On first run the database schema and seed users are created automatically via `require('./db').initDatabase()` called in `server.js`.
+### 3. Open http://localhost:3000
 
-Default seeded accounts (use these after first start)
-- Admin: username `admin` / password `THEFABULOUS`
-- Security: username `security` / password `security@24`
-- Student: username `student` / password `student@24`
+## Database
 
-Configuration
-- `PORT` environment variable (default 3000)
-- `render.yaml` is provided for Render deployments
+### Local Development (SQLite3)
+- Database file: `tracker.db` (auto-created)
+- Data persists between server restarts
+- Schema and seed users created automatically on first run
 
-Deploying to Render
-1. Push the repository to GitHub.
-2. In Render dashboard create a new Web Service and connect the repo.
-3. Render will use `render.yaml`. Build command: `npm install`, Start command: `npm start`, and `PORT` environment variable is set to `3000`.
+### Production (PostgreSQL on Render)
+The app automatically detects `DATABASE_URL` environment variable:
+- If `DATABASE_URL` is set → uses PostgreSQL
+- If `DATABASE_URL` is not set → uses SQLite3 (local mode)
 
-Notes & troubleshooting
-- If you see EJS template errors, check `views/` for mixed template literal usage; templates were adjusted to use proper EJS includes.
-- If `PORT 3000` is in use locally, set `PORT` to another value: `PORT=4000 npm start` on *nix, or use environment configuration on Windows.
+When deployed to Render with PostgreSQL:
+- Data persists across deployments and restarts
+- Multiple instances can share the same database
+- Automatic schema creation and user seeding on startup
 
-Contributing
-- Create feature branches, open PRs into `main`.
+## Default seeded accounts
 
-License
-- MIT (add your preferred license)
+Use these credentials after first start:
+- **Admin**: username `admin` / password `THEFABULOUS`
+- **Security**: username `security` / password `security@24`
+- **Student**: username `student` / password `student@24`
+
+## Configuration
+
+Environment variables:
+- `PORT` (default: 3000) - Server port
+- `DATABASE_URL` (optional) - PostgreSQL connection string for production
+  - If not set, uses local SQLite3
+
+## Deploying to Render
+
+### Prerequisites
+- GitHub repository (code pushed)
+- Render account
+
+### Deployment Steps
+
+1. **Create PostgreSQL Database** (for persistent data):
+   - Go to [render.com](https://render.com)
+   - Click "New +" → "PostgreSQL"
+   - Name: `kahianga-db`
+   - Plan: Free
+   - Note the connection string (DATABASE_URL)
+
+2. **Create Web Service**:
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Name: `kahianga-tracker`
+   - Environment: `Node`
+   - Build: `npm install`
+   - Start: `npm start`
+   - Add environment variable:
+     - Key: `DATABASE_URL`
+     - Value: Paste the PostgreSQL connection string from step 1
+   - Plan: Free
+
+3. **Deploy**:
+   - Render will automatically deploy from `render.yaml`
+   - Database schema and seed users are created automatically
+   - Your app will be live at `https://kahianga-tracker.onrender.com`
+
+### Notes
+- `render.yaml` includes both web service and PostgreSQL configuration
+- PostgreSQL data persists indefinitely on Render
+- On first deployment, tables and seed users are created automatically
+
+## Troubleshooting
+
+### Database connection issues
+- **Locally**: Check that `tracker.db` file is writable
+- **Production**: Verify `DATABASE_URL` is set correctly in Render dashboard
+
+### Port already in use locally
+On Windows:
+```powershell
+netstat -ano | findstr :3000
+taskkill /PID <pid> /F
+```
+
+On macOS/Linux:
+```bash
+lsof -i :3000
+kill -9 <pid>
+```
+
+Or use a different port:
+```bash
+PORT=4000 npm start
+```
+
+### EJS template errors
+- Check that views use consistent template literal syntax inside `include()` calls
+- All dashboard templates have been updated to use proper JavaScript template literal syntax
+
+## Architecture
+
+### Request Flow
+1. Client sends request to Express server
+2. Authentication middleware checks session
+3. Route handler connects to database (auto-detects SQLite or PostgreSQL)
+4. Data returned and rendered via EJS templates
+5. Response sent to client
+
+### Database Abstraction
+- `db.js` provides unified interface for both SQLite3 and PostgreSQL
+- Query parameters are automatically converted (`?` for SQLite, `$1, $2...` for PostgreSQL)
+- Same API works for both databases
+
+## Contributing
+- Create feature branches, open PRs into `main`
+- Test locally with SQLite before committing
+
+## License
+- MIT
+
+---
+
+**Last updated**: 2026-06-17  
+**Database**: SQLite3 (local) + PostgreSQL (production)  
+**Status**: Ready for deployment to Render with persistent database
