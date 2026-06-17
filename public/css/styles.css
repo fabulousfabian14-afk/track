@@ -497,22 +497,66 @@ button:hover,
     line-height: 1.6;
   }
 
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -24px -24px -24px;
+  }
+
+  .table-wrapper table {
+    min-width: 100%;
+    margin: 0;
+  }
+
   .action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .inline-form {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
-}
+    margin: 0;
+  }
 
-td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #e5e7eb;
-  color: #374151;
-}
+  .inline-form select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
 
-tbody tr:hover {
-  background: #f9fafb;
-}
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+
+  th {
+    background: #f3f4f6;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 0.9rem;
+  }
+
+  td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+  }
+
+  tbody tr:hover {
+    background: #f9fafb;
+  }
 
 .alert {
   border-radius: 8px;
@@ -597,6 +641,77 @@ tbody tr:hover {
   
   .items-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .table-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .table-wrapper {
+    margin: 0 -16px -16px -16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .page-header .button {
+    width: 100%;
+  }
+
+  th {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+
+  .inline-form {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .inline-form select,
+  .inline-form button {
+    width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .action-buttons form {
+    width: 100%;
+  }
+
+  .action-buttons .btn,
+  .inline-form .btn {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .dashboard-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .status-card {
+    padding: 16px;
   }
 }
 

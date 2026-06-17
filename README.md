@@ -1,5 +1,4 @@
-Kabianga Lost & Found Tracker
-=================================
+Kabianga Lost & Found Track
 
 A simple Express + SQLite lost-and-found tracker used at the University of Kabianga.
 
