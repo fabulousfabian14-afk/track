@@ -189,7 +189,7 @@ app.post('/student/report-lost', requireRole('student'), upload.single('image'),
   const imagePath = req.file ? `uploads/${req.file.filename}` : null;
   const db = await openDatabase();
   await db.run(
-    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
+    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
     title,
     description,
     location,
@@ -209,7 +209,7 @@ app.post('/student/report-found', requireRole('student'), upload.single('image')
   const imagePath = req.file ? `uploads/${req.file.filename}` : null;
   const db = await openDatabase();
   await db.run(
-    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
+    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
     title,
     description,
     location,
@@ -240,7 +240,7 @@ app.post('/student/claim/:id', requireRole('student'), async (req, res) => {
   }
 
   await db.run(
-    'INSERT INTO claims (report_id, user_id, status, created_at) VALUES (?, ?, ?, datetime("now"))',
+    'INSERT INTO claims (report_id, user_id, status, created_at) VALUES (?, ?, ?, NOW())',
     id,
     req.session.user.id,
     'pending'
@@ -261,7 +261,7 @@ app.post('/security/report-found', requireRole('security'), upload.single('image
   const imagePath = req.file ? `uploads/${req.file.filename}` : null;
   const db = await openDatabase();
   await db.run(
-    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime("now"))',
+    'INSERT INTO reports (title, description, location, type, status, created_by, assigned_to, contact_phone, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
     title,
     `${description} (Reported by security for owner: ${owner_name || 'Unknown'})`,
     location,
@@ -285,9 +285,9 @@ app.post('/security/claim/:claimId/approve', requireRole('security'), async (req
     return res.redirect('/security');
   }
 
-  await db.run('UPDATE claims SET status = ?, resolved_at = datetime("now") WHERE id = ?', 'approved', claimId);
+  await db.run('UPDATE claims SET status = ?, resolved_at = NOW() WHERE id = ?', 'approved', claimId);
   await db.run('UPDATE reports SET status = ?, assigned_to = ? WHERE id = ?', 'claimed', req.session.user.id, claim.report_id);
-  await db.run('UPDATE claims SET status = ?, resolved_at = datetime("now") WHERE report_id = ? AND id != ? AND status = ?', 'rejected', claim.report_id, claimId, 'pending');
+  await db.run('UPDATE claims SET status = ?, resolved_at = NOW() WHERE report_id = ? AND id != ? AND status = ?', 'rejected', claim.report_id, claimId, 'pending');
 
   req.flash('success', 'Claim approved. The item is now marked claimed.');
   res.redirect('/security');
@@ -302,7 +302,7 @@ app.post('/security/claim/:claimId/reject', requireRole('security'), async (req,
     return res.redirect('/security');
   }
 
-  await db.run('UPDATE claims SET status = ?, resolved_at = datetime("now") WHERE id = ?', 'rejected', claimId);
+  await db.run('UPDATE claims SET status = ?, resolved_at = NOW() WHERE id = ?', 'rejected', claimId);
   const pending = await db.get('SELECT COUNT(1) AS count FROM claims WHERE report_id = ? AND status = ?', claim.report_id, 'pending');
   if (pending.count === 0) {
     await db.run('UPDATE reports SET status = ? WHERE id = ?', 'in security', claim.report_id);

@@ -9,10 +9,9 @@ A role-based Express.js lost-and-found tracking system for University of Kabiang
 - Multi-user claim requests with approval authority
 - Automatic claim rejection on approval (prevents conflicts)
 - Responsive mobile-friendly UI for security dashboard
-- **Persistent database**: SQLite3 for local development, PostgreSQL for production
+- **Persistent database**: PostgreSQL via `DATABASE_URL`
 
 ## Database Options
-- **Local development**: Uses SQLite3 (`tracker.db`) - data persists in file
 - **Production (Render)**: Uses PostgreSQL via `DATABASE_URL` - data persists in managed database
 
 ## Quick links
@@ -40,21 +39,18 @@ npm install
 npm start
 ```
 
-The app will use SQLite3 locally and automatically initialize tables and seed users on first run.
+The app uses PostgreSQL and automatically initializes tables and seed users on first run.
 
 ### 3. Open http://localhost:3000
 
 ## Database
 
-### Local Development (SQLite3)
-- Database file: `tracker.db` (auto-created)
-- Data persists between server restarts
+### Production (PostgreSQL on Render)
+- Uses PostgreSQL via `DATABASE_URL`
+- Data persists across deployments and restarts
 - Schema and seed users created automatically on first run
 
-### Production (PostgreSQL on Render)
-The app automatically detects `DATABASE_URL` environment variable:
-- If `DATABASE_URL` is set → uses PostgreSQL
-- If `DATABASE_URL` is not set → uses SQLite3 (local mode)
+The app requires `DATABASE_URL` environment variable and uses PostgreSQL.
 
 When deployed to Render with PostgreSQL:
 - Data persists across deployments and restarts
@@ -72,8 +68,7 @@ Use these credentials after first start:
 
 Environment variables:
 - `PORT` (default: 3000) - Server port
-- `DATABASE_URL` (optional) - PostgreSQL connection string for production
-  - If not set, uses local SQLite3
+- `DATABASE_URL` - PostgreSQL connection string for production
 
 ## Deploying to Render
 
@@ -108,14 +103,14 @@ Environment variables:
    - Your app will be live at `https://kahianga-tracker.onrender.com`
 
 ### Notes
-- `render.yaml` includes both web service and PostgreSQL configuration
+- `render.yaml` includes PostgreSQL configuration
 - PostgreSQL data persists indefinitely on Render
 - On first deployment, tables and seed users are created automatically
 
 ## Troubleshooting
 
 ### Database connection issues
-- **Locally**: Check that `tracker.db` file is writable
+- **Locally**: Verify `DATABASE_URL` is set and points to a PostgreSQL database
 - **Production**: Verify `DATABASE_URL` is set correctly in Render dashboard
 
 ### Port already in use locally
@@ -145,18 +140,18 @@ PORT=4000 npm start
 ### Request Flow
 1. Client sends request to Express server
 2. Authentication middleware checks session
-3. Route handler connects to database (auto-detects SQLite or PostgreSQL)
+3. Route handler connects to PostgreSQL database
 4. Data returned and rendered via EJS templates
 5. Response sent to client
 
 ### Database Abstraction
-- `db.js` provides unified interface for both SQLite3 and PostgreSQL
-- Query parameters are automatically converted (`?` for SQLite, `$1, $2...` for PostgreSQL)
-- Same API works for both databases
+- `db.js` provides a PostgreSQL interface using `pg`
+- Query parameters use `$1, $2...` for PostgreSQL
+- Same API is used throughout the app
 
 ## Contributing
 - Create feature branches, open PRs into `main`
-- Test locally with SQLite before committing
+- Test locally with PostgreSQL before committing
 
 ## License
 - MIT
@@ -164,5 +159,5 @@ PORT=4000 npm start
 ---
 
 **Last updated**: 2026-06-17  
-**Database**: SQLite3 (local) + PostgreSQL (production)  
-**Status**: Ready for deployment to Render with persistent database
+**Database**: PostgreSQL  
+**Status**: Ready for deployment to Render with persistent PostgreSQL database
