@@ -9,6 +9,10 @@ services:
     envVars:
       - key: PORT
         value: "3000"
+      - key: NODE_ENV
+        value: "production"
+      - key: PGSSLMODE
+        value: "require"
     databaseId: kahianga-db
   
   - type: pserv

@@ -13,7 +13,15 @@ A role-based Express.js lost-and-found tracking system for University of Kabiang
 
 ## Database Options
 - **Production (Render)**: Uses PostgreSQL via `DATABASE_URL` - data persists in managed database
+- **Public deployment**: the app can be deployed on Render or any host with a public PostgreSQL connection string
 
+## Environment-based deployment
+The app is configured to use environment variables for production deployments.
+
+Required environment variables:
+- `DATABASE_URL` - PostgreSQL connection string
+- `PGSSLMODE=require` - recommended for remote PostgreSQL hosts such as Render
+- `NODE_ENV=production` - enables production SSL detection in `db.js`
 ## Quick links
 - App entry: [server.js](server.js)
 - Database helper: [db.js](db.js)
@@ -69,6 +77,8 @@ Use these credentials after first start:
 Environment variables:
 - `PORT` (default: 3000) - Server port
 - `DATABASE_URL` - PostgreSQL connection string for production
+- `PGSSLMODE` - should usually be `require` for remote Postgres hosts
+- `NODE_ENV` - production or development
 
 ## Deploying to Render
 

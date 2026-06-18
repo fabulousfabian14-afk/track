@@ -443,10 +443,12 @@ app.use((req, res) => {
   res.status(404).send('Page not found');
 });
 
-initDatabase().then(() => {
+// Try to initialize the database, but always start the HTTP server so it
+// can show a friendly error page or operate partially while DB is down.
+initDatabase().catch((error) => {
+  console.error('Failed to initialize database', error);
+}).finally(() => {
   app.listen(PORT, () => {
     console.log(`Kabianga tracker system listening on http://localhost:${PORT}`);
   });
-}).catch((error) => {
-  console.error('Failed to initialize database', error);
 });

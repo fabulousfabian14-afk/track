@@ -7,7 +7,13 @@ let pgPool = null;
 function getPgPool() {
   if (!pgPool) {
     const poolConfig = { connectionString };
-    const shouldUseSsl = process.env.NODE_ENV === 'production' || /sslmode=(require|verify-full|prefer)/i.test(connectionString);
+    const connStr = connectionString || '';
+    const envSsl = (process.env.PGSSLMODE || '').toLowerCase();
+    const shouldUseSsl =
+      process.env.NODE_ENV === 'production' ||
+      /sslmode=(require|verify-full|prefer)/i.test(connStr) ||
+      /\.render\.com/i.test(connStr) ||
+      envSsl === 'require' || envSsl === 'true';
     if (shouldUseSsl) {
       poolConfig.ssl = { rejectUnauthorized: false };
     }
