@@ -23,35 +23,35 @@
     </section>
 
     <section class="section-grid">
-      <div class="table-card">
+      <div class="table-card" style="overflow-x:auto;">
         <h2>Users</h2>
         ${users.length ? `
-          <table style="font-size:11px; font-family:inherit;">
-            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Username</th><th>Role</th><th>Phone</th><th>Actions</th></tr></thead>
+          <table style="font-size:12px; font-family:inherit; min-width:100%; border-collapse:collapse;">
+            <thead><tr style="background:#f5f5f5;"><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;">ID</th><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;max-width:120px;overflow:hidden;">Name</th><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;max-width:150px;overflow:hidden;">Email</th><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;max-width:100px;overflow:hidden;">User</th><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;">Role</th><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;max-width:110px;overflow:hidden;">Phone</th><th style="padding:8px;text-align:left;border-bottom:1px solid #ddd;white-space:nowrap;">Actions</th></tr></thead>
             <tbody>
               ${users.map(u => `
-                <tr>
-                  <td>${u.id}</td>
-                  <td>${u.full_name}</td>
-                  <td>${u.email}</td>
-                  <td>${u.username}</td>
-                  <td>${u.role}</td>
-                  <td>${u.phone_number || '-'}</td>
-                  <td style="white-space:nowrap;">
-                    <form method="post" action="/admin/user/${u.id}/delete" style="display:inline;margin-right:6px;">
-                      <button class="btn btn-danger" onclick="return confirm('Delete user ${u.username}?')" style="font-size:11px;padding:4px 6px;">Delete</button>
+                <tr style="border-bottom:1px solid #eee;">
+                  <td style="padding:8px;">${u.id}</td>
+                  <td style="padding:8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.full_name}">${u.full_name}</td>
+                  <td style="padding:8px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.email}">${u.email}</td>
+                  <td style="padding:8px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.username}">${u.username}</td>
+                  <td style="padding:8px;"><span style="background:#e8f4f8;padding:3px 8px;border-radius:3px;font-size:11px;">${u.role}</span></td>
+                  <td style="padding:8px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${u.phone_number || '-'}">${u.phone_number || '-'}</td>
+                  <td style="padding:8px;white-space:nowrap;">
+                    <form method="post" action="/admin/user/${u.id}/delete" style="display:inline;margin-right:4px;">
+                      <button class="btn btn-danger" onclick="return confirm('Delete user ${u.username}?')" style="font-size:11px;padding:4px 6px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;">Delete</button>
                     </form>
-                    <form method="post" action="/admin/user/${u.id}/role" style="display:inline;margin-right:6px;">
-                      <select name="role" style="font-size:11px;padding:3px;">
+                    <form method="post" action="/admin/user/${u.id}/role" style="display:inline;margin-right:4px;">
+                      <select name="role" style="font-size:11px;padding:3px;border-radius:3px;border:1px solid #ddd;">
                         <option value="student" ${u.role==='student' ? 'selected' : ''}>student</option>
                         <option value="security" ${u.role==='security' ? 'selected' : ''}>security</option>
                         <option value="admin" ${u.role==='admin' ? 'selected' : ''}>admin</option>
                       </select>
-                      <button style="font-size:11px;padding:4px 6px;margin-left:4px;">Set</button>
+                      <button style="font-size:11px;padding:4px 6px;margin-left:2px;background:#007bff;color:white;border:none;border-radius:3px;cursor:pointer;">Set</button>
                     </form>
-                    <form method="post" action="/admin/user/${u.id}/reset-password" style="display:inline;margin-top:4px;">
-                      <input name="password" placeholder="new password" style="font-size:11px;padding:3px;width:110px;" />
-                      <button style="font-size:11px;padding:4px 6px;margin-left:4px;">Reset</button>
+                    <form method="post" action="/admin/user/${u.id}/reset-password" style="display:inline;margin-top:2px;">
+                      <input name="password" placeholder="new pwd" style="font-size:11px;padding:3px;width:80px;border:1px solid #ddd;border-radius:3px;" />
+                      <button style="font-size:11px;padding:4px 6px;margin-left:2px;background:#28a745;color:white;border:none;border-radius:3px;cursor:pointer;">Reset</button>
                     </form>
                   </td>
                 </tr>
