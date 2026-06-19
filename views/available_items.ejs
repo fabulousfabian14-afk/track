@@ -8,37 +8,43 @@
 <section class="notice-box notice-warning">
   <strong>⏰ Important:</strong> Items not claimed within 90 days may be archived or disposed of according to university policy.
 </section>
-${reports.length ? `
+<% if (reports.length) { %>
   <div class="items-grid">
-    ${reports.map(r => `
+    <% reports.forEach(report => { %>
       <div class="item-card">
         <div class="item-image">
-          ${r.image_path ? `<img src="/${r.image_path}" alt="${r.title}">` : '<div class="no-image">📦 No Image</div>'}
+          <% if (report.image_path) { %>
+            <img src="/<%= report.image_path %>" alt="<%= report.title %>">
+          <% } else { %>
+            <div class="no-image">📦 No Image</div>
+          <% } %>
         </div>
         <div class="item-info">
-          <h3>${r.title}</h3>
-          <p class="description">${r.description}</p>
+          <h3><%= report.title %></h3>
+          <p class="description"><%= report.description %></p>
           <div class="item-details">
-            <p><strong>Location Found:</strong> ${r.location}</p>
-            <p><strong>Reported:</strong> ${new Date(r.created_at).toLocaleDateString()}</p>
-            <p><strong>Status:</strong> <span class="status-badge status-${r.status.replace(/\s+/g, '-')}">${r.status}</span></p>
-            <p><strong>Claim requests:</strong> ${r.claim_requests || 0}</p>
-            <p><strong>Security contact:</strong> ${r.contact_phone || '-'}</p>
+            <p><strong>Location Found:</strong> <%= report.location %></p>
+            <p><strong>Reported:</strong> <%= new Date(report.created_at).toLocaleDateString() %></p>
+            <p><strong>Status:</strong> <span class="status-badge status-<%= report.status.replace(/\s+/g, '-') %>"><%= report.status %></span></p>
+            <p><strong>Claim requests:</strong> <%= report.claim_requests || 0 %></p>
+            <p><strong>Security contact:</strong> <%= report.contact_phone || '-' %></p>
           </div>
           <div class="item-actions">
-            ${r.my_pending_claims > 0 ? `
+            <% if (report.my_pending_claims > 0) { %>
               <div class="badge badge-yellow">Your claim is pending review</div>
-            ` : [`in security`, `claim requested`].includes(r.status) ? `
-              <form action="/student/claim/${r.id}" method="post" class="inline-form">
+            <% } else if ([ 'in security', 'claim requested' ].includes(report.status)) { %>
+              <form action="/student/claim/<%= report.id %>" method="post" class="inline-form">
                 <button type="submit" class="btn btn-success">Request to Claim</button>
               </form>
-            ` : `
+            <% } else { %>
               <p class="text-muted">Not available for claim.</p>
-            `}
+            <% } %>
           </div>
         </div>
       </div>
-    `).join('')}
+    <% }) %>
   </div>
-` : '<p class="text-center">No claimable items are currently available. Check back later!</p>'}
+<% } else { %>
+  <p class="text-center">No claimable items are currently available. Check back later!</p>
+<% } %>
 ` }) %>
